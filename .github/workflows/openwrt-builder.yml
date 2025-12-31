@@ -191,8 +191,19 @@ jobs:
           sudo mkfs.btrfs -L combinedisk $LV_DEVNAME
           sudo mount -o compress=zstd $LV_DEVNAME $GITHUB_WORKSPACE
           sudo chown -R runner:runner $GITHUB_WORKSPACE
-          mkdir $GITHUB_WORKSPACE/tmp && chmod 777 $GITHUB_WORKSPACE/tmp
-          sudo cp -rp /tmp/* $GITHUB_WORKSPACE/tmp
+          
+          # 创建临时目录但不复制可能有权限问题的系统目录
+          mkdir -p $GITHUB_WORKSPACE/tmp
+          chmod 777 $GITHUB_WORKSPACE/tmp
+          
+          # 仅在必要时重新挂载 /tmp，否则使用默认位置
+          if [ -w /tmp ]; then
+            echo "✅ /tmp is writable, using default location"
+          else
+            echo "🔧 /tmp not writable, attempting bind mount"
+            sudo mount -B $GITHUB_WORKSPACE/tmp /tmp
+          fi
+          
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
 
