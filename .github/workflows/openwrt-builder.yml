@@ -87,7 +87,7 @@ jobs:
         run: |
           set -e
           [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-          chmod +x $DIY_P1_SH
+          [ -f $DIY_P1_SH ] && chmod +x $DIY_P1_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P1_SH
 
@@ -102,7 +102,7 @@ jobs:
           set -e
           [ -e files ] && mv files openwrt/files
           [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-          chmod +x $DIY_P2_SH
+          [ -f $DIY_P2_SH ] && chmod +x $DIY_P2_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
 
@@ -155,12 +155,7 @@ jobs:
     runs-on: ubuntu-22.04
     
     steps:
-      - name: 🙌 Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
-
-      - name: 🛠️ Init Environment
+      - name: �️ Init Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -198,11 +193,17 @@ jobs:
           sudo chown -R runner:runner $GITHUB_WORKSPACE
           mkdir $GITHUB_WORKSPACE/tmp && chmod 777 $GITHUB_WORKSPACE/tmp
           sudo cp -rp /tmp/* $GITHUB_WORKSPACE/tmp
+          sudo mount -B $GITHUB_WORKSPACE/tmp /tmp
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
 
           echo "💾 Disk space after cleanup:"
           df -hT
+
+      - name: 🙌 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: 🪜 Clone source code
         working-directory: /workdir
@@ -247,7 +248,7 @@ jobs:
         run: |
           set -e
           [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-          chmod +x $DIY_P1_SH
+          [ -f $DIY_P1_SH ] && chmod +x $DIY_P1_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P1_SH
 
@@ -262,7 +263,7 @@ jobs:
           set -e
           [ -e files ] && mv files openwrt/files
           [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-          chmod +x $DIY_P2_SH
+          [ -f $DIY_P2_SH ] && chmod +x $DIY_P2_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
 
